@@ -8,6 +8,9 @@ app.use(cors());
 
 const port = process.env.PORT || 3000;
 
+// ROUTES
+app.use("/api", require("./routes"));
+
 app.listen(port, () => {
     console.log(`Ahora el puerto es el: ${port}`);
 });
