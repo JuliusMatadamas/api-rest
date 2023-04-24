@@ -1,10 +1,9 @@
 const express = require('express');
+const uploadMiddleware = require("../utils/handleStorage");
+const {createItem} = require("../controllers/storages");
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    const data = [];
-    data.push({module:'storages',title:'Storage',description:'Artistas, albums y canciones almacenadas.'});
-    res.send({data});
-})
+
+router.post('/', uploadMiddleware.single("myfile"), createItem)
 
 module.exports = router;
