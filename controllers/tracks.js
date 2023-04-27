@@ -24,9 +24,11 @@ const readItems = async (req, res) => {
 }
 
 // READ A SINGLE ITEM
-const readItem = (req, res) => {
+const readItem = async (req, res) => {
     try {
-        const data = {module:'tracks',title:'Tracks',description:'Tracks del artista.'};
+        req = matchedData(req);
+        const {id} = req;
+        const data = await trackModel.findById(id);
         res.send({data});
     } catch (err) {
         handleHttpErrors(res, `Error al intentar leer el item: ${err.message}`);
@@ -34,9 +36,10 @@ const readItem = (req, res) => {
 }
 
 // UPDATE A ITEM
-const updateItem = (req, res) => {
+const updateItem = async (req, res) => {
     try {
-        const data = {message:'Item actualizado.'};
+        const {id, ...body} = matchedData(req);
+        const data = await trackModel.findOneAndUpdate(id, body);
         res.send({data});
     } catch (err) {
         handleHttpErrors(res, `Error al intentar actualizar el item: ${err.message}`);
@@ -44,9 +47,11 @@ const updateItem = (req, res) => {
 }
 
 // DELETE A ITEM
-const deleteItem = (req, res) => {
+const deleteItem = async (req, res) => {
     try {
-        const data = {message:'Item eliminado.'};
+        req = matchedData(req);
+        const {id} = req;
+        const data = await trackModel.delete({_id: id});
         res.send({data});
     } catch (err) {
         handleHttpErrors(res, `Error al intentar eliminar el item: ${err.message}`);
