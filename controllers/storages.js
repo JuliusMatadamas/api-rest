@@ -1,9 +1,13 @@
 const {storageModel} = require('../models');
+const {handleHttpErrors} = require("../utils/handleErrors");
+const {matchedData} = require("express-validator");
+const fs = require("fs");
 const PUBLIC_URL = process.env.PUBLIC_URL;
+const MEDIA_PATH = `${__dirname}/../storage`;
 
 // CREATE A ITEM
 const createItem = async (req, res) => {
-    const {body, file} = req;
+    const {file} = req;
     const fileData = {
         filename: file.filename,
         url:`${PUBLIC_URL}/${file.filename}`
@@ -14,23 +18,46 @@ const createItem = async (req, res) => {
 
 // READ ITEMS
 const readItems = async (req, res) => {
-    const data = await storageModel.find({});
-    res.send({data});
+    try {
+        const data = await storageModel.find({});
+        res.send({data});
+    } catch (err) {
+        handleHttpErrors(res, `Error al obtener los archivos: ${err.message}`);
+    }
 }
 
-// READ A SINGLE ITEM
-const readItem = (req, res) => {
-    const data = {module:'tracks',title:'Tracks',description:'Tracks del artista.'};
-    res.send({data});
+// READ ITEM
+const readItem = async (req, res) => {
+    try {
+        const {id} = matchedData(req);
+        const data = await storageModel.findById(id);
+        res.send({data});
+    } catch (err) {
+        handleHttpErrors(res, `Error al obtener el archivo: ${err.message}`);
+    }
 }
 
-
-// UPDATE A ITEM
-const updateItem = (req, res) => {
+// DELETE ITEM
+const deleteItem = async (req, res) => {
+    try {
+        // GET THE ID
+        const {id} = matchedData(req);
+        // GET THE FILE INFO
+        const dataFile = await storageModel.findById(id);
+        await storageModel.delete({_id:id});
+        // GET THE FILENAME
+        const {filename} = dataFile;
+        // DEFINE THE PATH
+        const filePath = `${MEDIA_PATH}/${filename}`;
+        // DELETE THE FILE
+        // fs.unlinkSync(filePath); // UNCOMMENT IF WANT DELETE THE FILE FROM DISK
+        // SET THE RESPONSE
+        const data = { filePath, deleted:1 }
+        // SEND THE RESPONSE
+        res.send(data);
+    } catch (err) {
+        handleHttpErrors(res, `Error al eliminar el archivo: ${err.message}`);
+    }
 }
 
-// DELETE A ITEM
-const deleteItem = (req, res) => {
-}
-
-module.exports = {createItem, readItems, readItem, updateItem, deleteItem};
+module.exports = {createItem, readItems, readItem, deleteItem};
