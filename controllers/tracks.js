@@ -16,8 +16,9 @@ const createItem = async (req, res) => {
 // READ ITEMS
 const readItems = async (req, res) => {
     try {
+        const user = req.user;
         const data = await trackModel.find({});
-        res.send({data});
+        res.send({data, user});
     } catch (err) {
         handleHttpErrors(res, `Error al intentar obtener los items: ${err.message}`);
     }
