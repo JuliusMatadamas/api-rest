@@ -7,13 +7,17 @@ const MEDIA_PATH = `${__dirname}/../storage`;
 
 // CREATE A ITEM
 const createItem = async (req, res) => {
-    const {file} = req;
-    const fileData = {
-        filename: file.filename,
-        url:`${PUBLIC_URL}/${file.filename}`
+    try {
+        const {file} = req;
+        const fileData = {
+            filename: file.filename,
+            url:`${PUBLIC_URL}/${file.filename}`
+        }
+        const data = await storageModel.create(fileData);
+        res.send({data});
+    } catch (err) {
+        handleHttpErrors(res, `Error al intentar cargar el archivo: ${err.message}`);
     }
-    const data = await storageModel.create(fileData);
-    res.send({data});
 }
 
 // READ ITEMS
